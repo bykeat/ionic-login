@@ -7,14 +7,14 @@ import {
 } from "@ionic/react";
 import React from "react";
 import "./Home.css";
-import LoginContainer from "../components/LoginContainer";
+import SignUpContainer from "../components/SignUpContainer";
 
-const Home: React.FC = () => {
+const SignUp: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Login Page</IonTitle>
+          <IonTitle>Sign Up Page</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
@@ -23,10 +23,10 @@ const Home: React.FC = () => {
             <IonTitle size="large">Blank</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <LoginContainer />
+        <SignUpContainer />
       </IonContent>
     </IonPage>
   );
 };
 
-export default Home;
+export default SignUp;
