@@ -7,8 +7,10 @@ import {
   IonItemDivider,
   IonAlert,
   IonToast,
+  IonSpinner,
 } from "@ionic/react";
 import { useHistory } from "react-router";
+import "./LoginContainer.css";
 interface SignUpProps {}
 
 const SignUpContainer: React.FC<SignUpProps> = () => {
@@ -20,6 +22,7 @@ const SignUpContainer: React.FC<SignUpProps> = () => {
     cpwd: "",
     name: "",
   });
+  const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState({
     show: false,
     message: "",
@@ -35,6 +38,7 @@ const SignUpContainer: React.FC<SignUpProps> = () => {
             return res.text();
           } else {
             console.error("response error");
+            setLoading(false);
           }
         })
         .then((data) => {
@@ -54,12 +58,14 @@ const SignUpContainer: React.FC<SignUpProps> = () => {
               message: "Email already registered.",
               redirect: "",
             });
+          setLoading(false);
         });
       setSignUp(false);
     }
   });
 
   const createAccount = () => {
+    setLoading(true);
     const regexEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     if (!regexEmail.test(signup.id)) {
       setAlert({
@@ -68,6 +74,7 @@ const SignUpContainer: React.FC<SignUpProps> = () => {
         message: "Please check your email is valid.",
         redirect: "",
       });
+      setLoading(false);
     }
 
     if (signup.cpwd !== signup.pwd || signup.pwd === "" || signup.cpwd === "") {
@@ -77,6 +84,7 @@ const SignUpContainer: React.FC<SignUpProps> = () => {
         message: "Password did not match or empty.",
         redirect: "",
       });
+      setLoading(false);
     } else if (signup.name === "") {
       setAlert({
         ...alert,
@@ -84,6 +92,7 @@ const SignUpContainer: React.FC<SignUpProps> = () => {
         message: "Name is empty.",
         redirect: "",
       });
+      setLoading(false);
     } else {
       setSignUp(true);
     }
@@ -139,7 +148,6 @@ const SignUpContainer: React.FC<SignUpProps> = () => {
           id="test"
           placeholder="Repeat password"
           onIonChange={(e) => {
-            console.log(e.detail.value);
             changeSignUpData({
               ...signup,
               cpwd: e.detail.value ? e.detail.value : "",
@@ -172,6 +180,7 @@ const SignUpContainer: React.FC<SignUpProps> = () => {
       >
         Submit
       </IonButton>
+      <IonSpinner hidden={!loading}></IonSpinner>
     </div>
   );
 };

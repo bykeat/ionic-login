@@ -6,16 +6,22 @@ import {
   IonButton,
   IonAlert,
   IonToast,
+  IonSpinner,
 } from "@ionic/react";
+import "./LoginContainer.css";
 interface LoginProps {}
 
 const LoginContainer: React.FC<LoginProps> = () => {
   const [login, changeLoginData] = useState({ id: "", pwd: "" });
   const [calledLogin, setLogin] = useState(false);
   const [alert, setAlert] = useState({ show: false, message: "" });
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     if (calledLogin) {
-      console.log("login now");
+      setAlert({
+        show: false,
+        message: "",
+      });
 
       fetch(
         //`https://pure-bastion-59348.herokuapp.com/login?id=${login.id}&pwd=${login.pwd}`,
@@ -37,11 +43,13 @@ const LoginContainer: React.FC<LoginProps> = () => {
             show: true,
             message: `${jsonObj ? jsonObj.message : ""}`,
           });
+          setLoading(false);
         })
         .catch((e) => {
           setAlert({ show: true, message: "Invalid login." });
-        });
 
+          setLoading(false);
+        });
       setLogin(false);
     }
   });
@@ -60,6 +68,7 @@ const LoginContainer: React.FC<LoginProps> = () => {
           }}
         ></IonInput>
       </IonItem>
+
       <IonItem>
         <IonLabel>Password:</IonLabel>
         <IonInput
@@ -77,6 +86,7 @@ const LoginContainer: React.FC<LoginProps> = () => {
       <IonButton
         onClick={() => {
           setLogin(true);
+          setLoading(true);
         }}
       >
         Login
@@ -90,6 +100,10 @@ const LoginContainer: React.FC<LoginProps> = () => {
         isOpen={alert.show}
       ></IonToast>
       <IonButton routerLink="/signup">Sign Up</IonButton>
+      <IonSpinner
+        className={!loading ? "hide" : ""}
+        name="crescent"
+      ></IonSpinner>
     </div>
   );
 };
