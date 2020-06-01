@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   IonInput,
   IonLabel,
@@ -6,58 +6,114 @@ import {
   IonButton,
   IonItemDivider,
   IonAlert,
+  IonToast,
 } from "@ionic/react";
 import { useHistory } from "react-router";
 interface SignUpProps {}
 
 const SignUpContainer: React.FC<SignUpProps> = () => {
   const history = useHistory();
-  const [login, changeLoginData] = useState({
+  const [signUpStatus, setSignUp] = useState(false);
+  const [signup, changeSignUpData] = useState({
     id: "",
     pwd: "",
     cpwd: "",
-    o: "",
+    name: "",
   });
   const [alert, setAlert] = useState({
     show: false,
     message: "",
     redirect: "",
   });
+  useEffect(() => {
+    if (signUpStatus) {
+      fetch(
+        `https://pure-bastion-59348.herokuapp.com/register?id=${signup.id}&pwd=${signup.pwd}&name=${signup.name}`
+      )
+        .then((res) => {
+          if (res.ok) {
+            return res.text();
+          } else {
+            console.error("response error");
+          }
+        })
+        .then((data) => {
+          console.log(data);
+          let jsonObj = JSON.parse(data ? data : "");
+          if (jsonObj.success)
+            setAlert({
+              ...alert,
+              show: true,
+              message: "Account successfully registered.",
+              redirect: "/home",
+            });
+          else
+            setAlert({
+              ...alert,
+              show: true,
+              message: "Email already registered.",
+              redirect: "",
+            });
+        });
+      setSignUp(false);
+    }
+  });
 
   const createAccount = () => {
-    console.log("submitted data", login);
-    if (login.cpwd !== login.pwd || login.pwd === "" || login.cpwd === "") {
+    const regexEmail = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    if (!regexEmail.test(signup.id)) {
+      setAlert({
+        ...alert,
+        show: true,
+        message: "Please check your email is valid.",
+        redirect: "",
+      });
+    }
+
+    if (signup.cpwd !== signup.pwd || signup.pwd === "" || signup.cpwd === "") {
       setAlert({
         ...alert,
         show: true,
         message: "Password did not match or empty.",
+        redirect: "",
       });
-    } else {
-      const payload = {
-        id: login.id,
-        pwd: login.pwd,
-      };
-
+    } else if (signup.name === "") {
       setAlert({
         ...alert,
         show: true,
-        message: "Account successfully registered.",
-        redirect: "/home",
+        message: "Name is empty.",
+        redirect: "",
       });
+    } else {
+      setSignUp(true);
     }
   };
   return (
     <div className="container">
       <IonItem>
-        <IonLabel>Login ID:</IonLabel>
+        <IonLabel>Email Address:</IonLabel>
+        <IonInput
+          type="email"
+          required={true}
+          placeholder="Enter email address"
+          onIonChange={(e) => {
+            changeSignUpData({
+              ...signup,
+              id: e.detail.value ? e.detail.value : "",
+            });
+          }}
+        ></IonInput>
+      </IonItem>
+      <IonItem>
+        <IonLabel>Name:</IonLabel>
         <IonInput
           type="text"
           required={true}
-          placeholder="Enter Login ID"
+          placeholder="Enter your name"
           onIonChange={(e) => {
-            changeLoginData({
-              ...login,
-              id: e.detail.value ? e.detail.value : "",
+            changeSignUpData({
+              ...signup,
+              name: e.detail.value ? e.detail.value : "",
             });
           }}
         ></IonInput>
@@ -67,11 +123,10 @@ const SignUpContainer: React.FC<SignUpProps> = () => {
         <IonInput
           type="password"
           required={true}
-          placeholder="Enter Password"
+          placeholder="Enter password"
           onIonChange={(e) => {
-            //changePassword();
-            changeLoginData({
-              ...login,
+            changeSignUpData({
+              ...signup,
               pwd: e.detail.value ? e.detail.value : "",
             });
           }}
@@ -82,20 +137,20 @@ const SignUpContainer: React.FC<SignUpProps> = () => {
         <IonInput
           type="password"
           id="test"
-          placeholder="Repeat Password"
+          placeholder="Repeat password"
           onIonChange={(e) => {
             console.log(e.detail.value);
-            changeLoginData({
-              ...login,
+            changeSignUpData({
+              ...signup,
               cpwd: e.detail.value ? e.detail.value : "",
             });
           }}
         ></IonInput>
       </IonItem>
-      <IonAlert
+      <IonToast
         message={alert.message}
         onDidDismiss={() => {
-          if (alert.redirect !== "") {
+          if (alert.redirect.length > 0) {
             history.push(alert.redirect);
           }
           setAlert({ show: false, message: "", redirect: "" });
@@ -106,7 +161,8 @@ const SignUpContainer: React.FC<SignUpProps> = () => {
             text: "Okay",
           },
         ]}
-      ></IonAlert>
+        duration={3000}
+      ></IonToast>
       <IonButton routerLink="home">Back</IonButton>
       <IonButton
         type="submit"

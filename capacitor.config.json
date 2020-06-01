@@ -1,6 +1,6 @@
 {
-  "appId": "io.ionic.starter",
-  "appName": "blank",
+  "appId": "com.logintext.khkionic",
+  "appName": "login-test",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "build",
